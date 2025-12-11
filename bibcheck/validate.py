@@ -43,8 +43,12 @@ class Validate:
             return
 
         norm_title = normalize_title(title)
-        score_title = max(Levenshtein.ratio(citation.norm_title, norm_title),
-                   Levenshtein.ratio(citation.norm_hyphen_title, norm_title))
+        score_title = Levenshtein.ratio(citation.norm_title, norm_title)
+        if score_title < 1.0 and citation.norm_concat_title:
+            score_title = max(score_title, Levenshtein.ratio(citation.norm_concat_title, norm_title))
+        if score_title < 1.0 and citation.norm_hyphen_title:
+            score_title = max(score_title, Levenshtein.ratio(citation.norm_hyphen_title, norm_title))
+
         if ":" in citation.title and score_title < 1.0:
             new_title = normalize_title(citation.title.split(':')[0])
             if (Levenshtein.ratio(new_title, norm_title) == 1.0):
@@ -223,22 +227,49 @@ class Validate:
         self.search_dblp(citation, citation.norm_title)
         if self.score_title == 1:
             return
+        self.search_osti(citation, citation.norm_title)
+        if self.score_title == 1:
+            return
 
-        self.search_openalex(citation, citation.norm_hyphen_title)
-        if self.score_title == 1:
-            return
-        self.search_crossref(citation, citation.norm_hyphen_title)
-        if self.score_title == 1:
-            return
-        self.search_arxiv(citation, citation.norm_hyphen_title)
-        if self.score_title == 1:
-            return
-        self.search_googlebooks(citation, citation.norm_hyphen_title)
-        if self.score_title == 1:
-            return
-        self.search_dblp(citation, citation.norm_hyphen_title)
-        if self.score_title == 1:
-            return
+        if (citation.norm_concat_title):
+            self.search_openalex(citation, citation.norm_concat_title)
+            if self.score_title == 1:
+                return
+            self.search_crossref(citation, citation.norm_concat_title)
+            if self.score_title == 1:
+                return
+            self.search_arxiv(citation, citation.norm_concat_title)
+            if self.score_title == 1:
+                return
+            self.search_googlebooks(citation, citation.norm_concat_title)
+            if self.score_title == 1:
+                return
+            self.search_dblp(citation, citation.norm_concat_title)
+            if self.score_title == 1:
+                return
+            self.search_osti(citation, citation.norm_concat_title)
+            if self.score_title == 1:
+                return
+
+        if (citation.norm_hyphen_title):
+            self.search_openalex(citation, citation.norm_hyphen_title)
+            if self.score_title == 1:
+                return
+            self.search_crossref(citation, citation.norm_hyphen_title)
+            if self.score_title == 1:
+                return
+            self.search_arxiv(citation, citation.norm_hyphen_title)
+            if self.score_title == 1:
+                return
+            self.search_googlebooks(citation, citation.norm_hyphen_title)
+            if self.score_title == 1:
+                return
+            self.search_dblp(citation, citation.norm_hyphen_title)
+            if self.score_title == 1:
+                return
+            self.search_osti(citation, citation.norm_hyphen_title)
+            if self.score_title == 1:
+                return
 
         self.search_openalex(citation, citation.entry)
         if self.score_title == 1:
@@ -288,59 +319,74 @@ class Validate:
             r.raise_for_status()
 
             data = r.json()
-            # Defensive navigation: dblp -> hits -> hit[]
             hits = (
                 data.get("result", {})
                     .get("hits", {})
                     .get("hit", [])
             )
 
-            # Normalize to list (dblp returns object if only one hit)
             if isinstance(hits, dict):
                 hits = [hits]
 
             for hit in hits:
                 info = hit.get("info", {})
-                title = info.get("title", "") or ""
-                year = info.get("year", None)
-
-                # Authors can be either a single dict or list of dicts
-                authors_raw = info.get("authors", {})
-                author_field = authors_raw.get("author") if isinstance(authors_raw, dict) else authors_raw
+                title = info.get("title") or ""
+                authors_raw = info.get("authors", {}) or {}
+                author_objs = authors_raw.get("author", [])
+                if isinstance(author_objs, dict):
+                    author_objs = [author_objs]
 
                 authors = []
-                if isinstance(author_field, list):
-                    for a in author_field:
-                        # a can be string or dict {"text": "Name"} depending on API variant
-                        if isinstance(a, str):
-                            authors.append(a)
-                        elif isinstance(a, dict):
-                            name = a.get("text") or a.get("name") or ""
-                            if name:
-                                name = re.sub(r"\s+0{3,}\d+$", "", name.strip())
-                                authors.append(name)
-                elif isinstance(author_field, dict):
-                    name = author_field.get("text") or author_field.get("name") or ""
+                for a in author_objs:
+                    if isinstance(a, dict):
+                        name = a.get("text") or a.get("name") or ""
+                    else:
+                        name = str(a)
+
                     if name:
                         name = re.sub(r"\s+0{3,}\d+$", "", name.strip())
                         authors.append(name)
-                elif isinstance(author_field, str):
-                    authors.append(author_field)
 
-                # Call your existing comparison logic
                 self.compare(citation, title, authors)
-
-                # If you treat title==perfect as a hard match, bail early
-                if getattr(self, "score_title", 0) == 1:
+                if self.score_title == 1.0:
                     return
 
         except Exception:
-            # Swallow network/parse errors and just return (no match)
             return
+
+
+    def search_osti(self, citation, search):
+        query = quote_plus(search)
+        url = f"https://www.osti.gov/api/v1/records?q={query}&rows=5&format=json"
+        time.sleep(0.5)
+
+        try:
+            r = requests.get(url, timeout=20)
+            r.raise_for_status()
+            data = r.json()
+
+            records = data.get("records", []) or []
+
+            for rec in records[:5]:
+                title = (rec.get("title") or "").strip()
+
+                authors = rec.get("authors") or []
+
+                if isinstance(authors, str):
+                    authors = [a.strip() for a in authors.split(";") if a.strip()]
+
+                self.compare(citation, title, authors)
+                if self.score_title == 1:
+                    return
+
+        except Exception:
+            return
+
+
 
     def search_arxiv(self, citation, search):
         query = quote_plus(search)  
-        url = f"http://export.arxiv.org/api/query?search_query=all:{query}&max_results=5"
+        url = f"http://export.arxiv.org/api/query?search_query=ti:%22{query}%22&max_results=5"
         time.sleep(0.5)
         try:
             r = requests.get(url, timeout=20)

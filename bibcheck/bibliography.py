@@ -1,5 +1,5 @@
-import re
 from PyPDF2 import PdfReader
+import re
 
 from .citation import Citation 
 
@@ -39,7 +39,6 @@ class Bibliography:
         matches = re.findall(pattern, bib_text, re.DOTALL)
         for number, entry_text in matches:
             clean = " ".join(entry_text.split()).strip()
-            clean = re.sub(r'-(\w)\s+([a-z])', r'-\1\2', clean)
             if clean:
                 self.entries.append(Citation(number, clean, args))  
 
@@ -48,3 +47,5 @@ class Bibliography:
     def validate(self, args):
         for entry in self.entries:
             entry.validate()
+        #self.entries[44].validate()
+        #print(self.entries[16].entry)
