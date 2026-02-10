@@ -1,5 +1,8 @@
 __all__ = ["get_colors", "write_output", "write_multi_output"]
 
+from docx.shared import RGBColor
+
+
 RESET  = "\033[0m"
 def get_colors(doc):
     if doc:
@@ -38,7 +41,7 @@ def write_multi_output(header, header_color, colored_words, doc):
             run = p.add_run(word)
             if color is not None:
                 run.font.color.rgb = color
-            run.p.add_run(" ")
+            run = p.add_run(" ")
     else:
         print(f"{header_color}{header}{RESET} ", end="")
         for word, color in colored_words:
