@@ -12,10 +12,10 @@ The bibcheck package can be installed with pip.  To install, run the following f
 After installing, you can check the accuracy of citations in a PDF through `bibcheck filename.pdf`
 
 ## Available Command Line Arguments
-`-ieee` : Assume IEEE-formatted bibliography (default)
-`-siam` : Assume SIAM-formatted bibliography
-`-acm` : Assume ACM-formatted bibliophgray
-`-springer` : Assume Springer-formatted bibliography
-`-write_out` : Saves output to a word .docx file instead of printing to stdout.
+- `-ieee` : Assume IEEE-formatted bibliography (default)
+- `-siam` : Assume SIAM-formatted bibliography
+- `-acm` : Assume ACM-formatted bibliophgray
+- `-springer` : Assume Springer-formatted bibliography
+- `-write_out` : Saves output to a word .docx file instead of printing to stdout.
 
 *Acknowledgement: ChatGPT was used to generate string comparison patterns and API search URLs.*
