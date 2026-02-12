@@ -29,17 +29,19 @@ The codebase will output citation validation information, including the followin
 
 - `<Parsed citation> (unless matched exactly or excluded)`
 
-- ```
-Title does not match searched metadata!
+- 
+    ```
+    Title does not match searched metadata!
     GIVEN TITLE: ...
     FOUND TITLE: ...
     ```
     
-- ```
-Authors do not match metadata for FOUND TITLE!
+- 
+    ```
+    Authors do not match metadata for FOUND TITLE!
     GIVEN AUTHORS: ...
     FOUND AUTHORS: ...
-```
+    ```
 
 ## Limitations
 - Currently, this only validates against metadata stored in publicly available APIs (e.g. OpenAlex, arXiv, and similar).  It cannot currently validate codebases and websites.  Github and common HPC websites are listed in an exclusions file, and if these URLs are found within a citation, the given citation is not validated.  When this happens, you will see `# excluded from search (exclusions.json match)`.
