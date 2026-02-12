@@ -56,5 +56,5 @@ The codebase will output citation validation information, including the followin
 ## Please Provide Feedback
 Please reach out if you have any issues!  I am also happy to parse additional bibliography formats.
 
-## Acknowledgement
+## 
 *ChatGPT was used to generate string comparison patterns and API search URLs.*
