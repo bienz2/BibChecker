@@ -21,7 +21,8 @@ After installing, you can check the accuracy of citations in a PDF through `bibc
 ## Limitations
 - Currently, this only validates against metadata stored in publicly available APIs (e.g. OpenAlex, arXiv, and similar).  It cannot currently validate codebases and websites.  Github and common HPC websites are listed in an exclusions file, and if these URLs are found within a citation, the given citation is not validated.  When this happens, you will see `# excluded from search (exclusions.json match)`.
 - Parsing citations with `PdfReader` and manual string comparisons is an error prone approach.  You may see parsings, particularly author names, that do not match the original citation.  When this happens, you can compare FOUND AUTHORS directly against the original citation, in the format should below.
-```\<Original Citation, e.g. author0, author1. "Title". etc\>
+```
+<Original Citation, e.g. author0, author1. "Title". etc>
 
 Authors do not match metadata for FOUND TITLE!
 GIVEN AUTHORS:  author0, author1, ...
