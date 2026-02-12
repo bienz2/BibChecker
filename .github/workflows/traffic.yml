@@ -58,4 +58,4 @@ jobs:
 
           git add .github/metrics/*.csv
           git commit -m "Daily clone stats (${{ steps.clones.outputs.date }})" || echo "No changes"
-          git push origin HEAD:track-traffic
+          git push origin HEAD:main
