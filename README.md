@@ -46,7 +46,7 @@ The codebase will output citation validation information, including the followin
 ## Limitations
 - Only validates against metadata stored in publicly available APIs (e.g. OpenAlex, arXiv, and similar).  Citations containing Github and common HPC websites are excluded from validation; will output `# excluded from search (exclusions.json match)`.
 - Parsing PDFs is an error prone process.  When a citation cannot be validated, the original citation is output so that you can check it against the closest found match.
-- Authors do not also follow the expected citation format.  When this happens, this checker searches for a general match, potentially parsing incorrectly.  If a citation does not match the expected format, you will see `# does not match expected <ieee|acm|siam|springer> format`.
+- Authors do not always conform to the expected citation format.  When this happens, this checker searches for a general match, potentially parsing incorrectly.  If a citation does not match the expected format, you will see `# does not match expected <ieee|acm|siam|springer> format`.
 
 ## Exclusions file
 The file `exclusions.json` includes keywords/phrases that indicates a citation should be excluded from the search.  For instance, if a reference contains a Github link, it is excluded from the search, as publicly available APIs will not be able to find codebases.  You can add additional exclusions by creating your own JSON file and passing it to the bibliography checker with `--exclude-file <exclusionfile.json>`.
