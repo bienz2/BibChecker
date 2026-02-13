@@ -71,7 +71,7 @@ def normalize_title(title):
     title = re.sub(r'\s+', ' ', title)
     title = title.replace('- ', '')
     title = title.replace('/', ' ')
-    title = re.sub(r"[^a-zA-Z0-9]+", " ", title)
+    title = re.sub(r"[^a-zA-Z0-9_]+", " ", title)
     title = re.sub(r"\s+", " ", title)
     return title.lower().strip() 
 
@@ -83,7 +83,7 @@ def normalize_title_concat(title):
     title = title.replace("’", "").replace("'", "")
     title = re.sub(r'\s+', ' ', title)
     title = title.replace('/', ' ')
-    title = re.sub(r"[^a-zA-Z0-9]+", " ", title)
+    title = re.sub(r"[^a-zA-Z0-9_]+", " ", title)
     title = re.sub(r"\s+", " ", title)
     return title.lower().strip() 
 
