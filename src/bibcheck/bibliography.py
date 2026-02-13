@@ -23,6 +23,7 @@ class Bibliography:
         #Convert PDF to text
         reader = PdfReader(pdf_path)
         text = "\n".join(page.extract_text() or "" for page in reader.pages)
+        text = re.sub(r'\s+\.', '.', text)
 
         # Find the last instance of 'bibliography' or 'references'
         pattern = re.compile(
