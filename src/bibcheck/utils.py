@@ -57,6 +57,10 @@ def remove_special_chars(s):
     
     return s
 
+def remove_line_numbers(text):
+    text = re.sub(r'\s+\d{3,4}\s+', ' ', text)
+    return text
+
 def format_for_url(text):
     text = text.lower()
     text = text.replace('\n', '').replace(' ', '')

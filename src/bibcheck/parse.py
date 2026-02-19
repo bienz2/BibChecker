@@ -66,58 +66,74 @@ class patterns:
         '''  
 
     siam_pattern_3 = r'''
-            ^(?P<authors>
-            (?:\b[A-Z]\.|[^.\d])*?     # No periods unless they follow 1 capital letter (initial)            
-            ,\s*and\b\s*             # Must find `, and` before last author
-            (?:\b[A-Z]\.|[^.\d]+)*?
+            ^
+            (?P<authors>
+                .+?                    # first authors
+                \s*,\s*and\s+          # require ", and" (whitespace flexible)
+                .+?                    # final author
             )
-            [\.]\s*                 # consume the punctuation right after authors
-            (?P<title>[^.]+)
-            [\.]\s*                 # punctuation right after title
-            (?P<year>(19|20)\d{2})\b
+            \s*,\s*                    # comma after authors
+            (?P<title>.+?)                   # title up to next comma
+            \s*,\s*
+            (?P<rest>.+?)                    # everything after title
+            (?:                              # year may appear in two forms
+                \(\s*(?P<year_paren>(19|20)\d{2})\s*\)   # (2015)
+              |
+                \b(?P<year_plain>(19|20)\d{2})\b         # 2011
+            )
             .*$
         '''
     siam_pattern_2 = r'''
-            ^(?P<authors>
-                (?:\b[A-Z]\.|[^.,\d])*?        # allow initials like "A." but otherwise no periods
-                \sand\s+(?=[A-Z])           # " and " only if next token looks like an author (capitalized)
-                (?:\b[A-Z]\.|[^.,\d])*?        # same restriction for the rest of the authors
-                \b[A-Za-z]{2,}              # final word in author list
+            ^
+            (?P<authors>
+                .+?                # first author
+                \s+and\s+          # require " and "
+                .+?                # second author
             )
-            [\.]\s*                         # period after authors
-            (?P<title>[^.]+)                # title up to next period (still forbids periods in title)
-            [\.]\s*                         # period after title
-            (?P<year>(19|20)\d{2})\b
+            \s*,\s*                # comma after authors
+            (?P<title>.+?)                   # title up to next comma
+            \s*,\s*
+            (?P<rest>.+?)                    # everything after title
+            (?:                              # year may appear in two forms
+                \(\s*(?P<year_paren>(19|20)\d{2})\s*\)   # (2015)
+              |
+                \b(?P<year_plain>(19|20)\d{2})\b         # 2011
+            )
             .*$
         '''
     siam_pattern_et_al = r'''
             ^
             (?P<authors>
-                (?:\b[A-Z]\.|[^.\d])*?       # same looseness as other patterns
-                \bet\s+al\s*\.?                   # literal "et al."
+                .+?\bet\s+al\.?
             )
-            \s*
-            (?P<title>[^.]+)                # title up to next period
-            [\.]\s*
-            (?P<year>(19|20)\d{2})\b
+            \s*,\s*
+            (?P<title>.+?)                   # title up to next comma
+            \s*,\s*
+            (?P<rest>.+?)                    # everything after title
+            (?:                              # year may appear in two forms
+                \(\s*(?P<year_paren>(19|20)\d{2})\s*\)   # (2015)
+              |
+                \b(?P<year_plain>(19|20)\d{2})\b         # 2011
+            )
             .*$
         '''
+        
     siam_pattern_1 = r'''
             ^
             (?P<authors>
-                (?:                             # consume chars that are NOT the boundary start
-                    (?!\b[A-Za-z]{2,}[\.,])     # don't step over a WORD{2,} + . or , boundary
-                    .                           # consume one char
-                )*
-                \b[A-Za-z]{2,}                  # final word before separator: >= 2 letters
+                [^,]+?
             )
-            (?=[\.,])                           # next char must be . or ,
-            [\.]\s*                            # consume the punctuation
-            (?P<title>[^.]+)
-            [\.]\s*
-            (?P<year>(19|20)\d{2})\b
+            \s*,\s*
+            (?P<title>.+?)                   # title up to next comma
+            \s*,\s*
+            (?P<rest>.+?)                    # everything after title
+            (?:                              # year may appear in two forms
+                \(\s*(?P<year_paren>(19|20)\d{2})\s*\)   # (2015)
+              |
+                \b(?P<year_plain>(19|20)\d{2})\b         # 2011
+            )
             .*$
-        '''  
+        '''
 
     springer_pattern = r'''
             ^

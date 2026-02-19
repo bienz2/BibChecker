@@ -6,7 +6,7 @@ from docx import Document
 from docx.shared import RGBColor
 
 from .validate import Validate
-from .utils import exclusions, remove_special_chars, normalize_title, normalize_title_concat, format_for_url, normalize_authors
+from .utils import exclusions, remove_special_chars, normalize_title, normalize_title_concat, format_for_url, normalize_authors, remove_line_numbers
 from .parse import patterns
 from .write_output import *
 
@@ -30,6 +30,8 @@ class Citation:
             self.last_first = True
 
         entry = remove_special_chars(entry)
+        if args.siam:
+            entry = remove_line_numbers(entry)
         self.entry = entry
 
         self.excluded = False
