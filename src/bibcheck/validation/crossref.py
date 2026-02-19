@@ -21,6 +21,12 @@ def parse_crossref(citation, validation, results):
             if validation.score_title == 1.0 and validation.authors:
                 return
 
+            subtitle_list = item.get("subtitle", [])
+            if subtitle_list:
+                subtitle = subtitle_list[0].strip()
+                title = f"{title}: {subtitle}"
+                validation.compare(citation, title, authors)
+
 def search_crossref_doi(citation, validation):
     url = f"https://api.crossref.org/works/{citation.doi}"
     parse_crossref(citation, validation, validation.search_request(url))
