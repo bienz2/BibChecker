@@ -28,7 +28,6 @@ class Bibliography:
             for page in doc:
                 text += page.get_text()
             text = re.sub(r'^\s*\d+\s*$\n?', '', text, flags=re.MULTILINE)
-            text = re.sub(r'-\n', '-', text)
         else:
             reader = PdfReader(pdf_path)
             text = "\n".join(page.extract_text() or "" for page in reader.pages)
