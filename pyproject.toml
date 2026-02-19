@@ -14,6 +14,7 @@ requires-python = ">=3.8"
 
 dependencies = [
     "PyPDF2",
+    "PyMuPDF",
     "requests",
     "feedparser",
     "python-Levenshtein",
