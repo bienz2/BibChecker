@@ -4,9 +4,9 @@ Analyzes IEEE, SIAM, ACM, and Springer format bibliographies for correctness.  T
 Note: the arXiv API does not allow for checking against previous versions of papers.  **If either the title or authors fail to match against an arXiv paper, make sure to manually check previous versions.**
 
 ## Installing BibChecker
-The bibcheck package can be installed with pip.  To install, run the following from the outermost directory:
+The bibcheck package can be installed with pip. To install the latest release, run the following:
 
-`pip install .`
+`pip install bibchecker`
 
 ## Checking Citations in a PDF
 After installing, you can check the accuracy of citations in a PDF through `bibcheck filename.pdf`
