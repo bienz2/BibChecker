@@ -21,17 +21,24 @@ def get_colors(doc):
 
     return [RED, ORANGE, BLUE, GREEN, DIM]
 
+
+INVALID_XML_RE = re.compile(
+    r'['
+    r'\x00-\x08'
+    r'\x0B\x0C'
+    r'\x0E-\x1F'
+    r'\uD800-\uDFFF'   # surrogate halves
+    r'\uFFFE\uFFFF'    # non-characters
+    r']'
+)
 def clean_xml_text(text):
     if not text:
         return text
 
-    # Remove NULL bytes
-    text = text.replace('\x00', '')
+    if not text:
+        return text
 
-    # Remove all control chars except \t \n \r
-    text = re.sub(r'[\x01-\x08\x0B-\x0C\x0E-\x1F]', '', text)
-
-    return text
+    return INVALID_XML_RE.sub('', text)
 
 def write_output(string, doc, color=None):
     if doc:

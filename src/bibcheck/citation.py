@@ -278,7 +278,7 @@ class Citation:
 
 
         validation = Validate(self)
-        list0, list1 = validation.compare_authors(self, self.last_first)
+        list0, list1, list2 = validation.compare_authors(self, self.last_first)
 
         if validation.score_title == 1.0 and validation.score_authors == 1.0:
             write_output(f"{self.number} found exact title/author match", doc, GREEN)
@@ -293,7 +293,8 @@ class Citation:
                 write_output(f"Title NOT found using ARXIV ID {self.arxiv_id}", doc, RED)
                 if validation.arxiv_version_count:
                     write_output(f"ArXIV Version Count is {validation.arxiv_version_count}, Manually compare against older versions!", doc, BLUE)
-
+            
+            
         if validation.score_title != 1.0:
             title0 = self.norm_title.split(" ") if self.norm_title else []
             title1 = normalize_title(validation.title).split(" ") if validation.title else []
@@ -303,6 +304,12 @@ class Citation:
 
             write_multi_output("GIVEN TITLE: ", DIM, colored_0, doc)
             write_multi_output("FOUND TITLE: ", DIM, colored_1, doc)
+            if validation.wrong_doi and validation.doi_title != validation.title:
+                title2 = normalize_title(validation.doi_title).split(" ") if validation.doi_title else []
+                _, colored_2 = self.color(title1, title2, ORANGE, RED)
+                write_multi_output("DOI TITLE: ", DIM, colored_2, doc)
+
+
 
 
         if validation.score_authors < 1.0:
@@ -311,8 +318,10 @@ class Citation:
             
             write_multi_output("GIVEN AUTHORS: ", DIM, a0, doc)
             write_multi_output("FOUND AUTHORS: ", DIM, a1, doc)
-                
 
+            if validation.wrong_doi and validation.doi_authors != validation.authors:
+                _, a2 = self.color(list0, list2, RED, ORANGE)
+                write_multi_output("DOI AUTHORS: ", DIM, a2, doc);
         else:
             write_output("Authors match!", doc, BLUE)
 

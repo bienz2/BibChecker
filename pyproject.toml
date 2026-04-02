@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bibcheck"
-version = "0.1.0"
+version = "1.0.0"
 description = "A tool for checking the accuracy of citations within an ACM, SIAM, or IEEE formatted bibliography."
 authors = [
     { name = "Amanda Bienz", email = "bienz@unm.edu" }

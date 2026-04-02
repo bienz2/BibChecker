@@ -24,6 +24,8 @@ class Validate:
         self.score_authors = 0
         self.arxiv_version_count = 0
         self.wrong_doi = 0
+        self.doi_title = ""
+        self.doi_authors = ""
 
         if citation.excluded:
             self.match_percent = 1.0
@@ -37,12 +39,16 @@ class Validate:
             if self.score_title == 1.0:
                 return
             self.wrong_doi = 1
+            self.doi_title = self.title
+            self.doi_authors = self.authors
 
         if citation.arxiv_id:
             search_arxiv_id(citation, self)
             if self.score_title == 1.0:
                 return
             self.wrong_doi = 1
+            self.doi_title = self.title
+            self.doi_authors = self.authors
 
 
         if not citation.norm_title:
@@ -123,11 +129,17 @@ class Validate:
         if self.authors:
             self.authors = [re.sub(HYPHENS, " ", a) for a in self.authors]
 
+
         list0, list1 = replace_et_al(citation.authors, self.authors, last_first)
+
+        list2 = None
+        if self.doi_authors:
+            self.doi_authors = [re.sub(HYPHENS, " ", a) for a in self.doi_authors]
+            _, list2 = replace_et_al(citation.authors, self.doi_authors, last_first)
 
         if not list0 or not list1:
             self.score_authors = 0
-            return list0, list1
+            return list0, list1, list2
 
         auth_str0 = ", ".join(list0)
         auth_str0 = normalize_authors(auth_str0)
@@ -135,7 +147,7 @@ class Validate:
         auth_str1 = normalize_authors(auth_str1)
 
         self.score_authors = Levenshtein.ratio(auth_str0,auth_str1)
-        return list0, list1
+        return list0, list1, list2
 
 
     # Search a given URL for params
