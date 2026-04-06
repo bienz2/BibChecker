@@ -271,10 +271,13 @@ class Citation:
         
         if self.excluded:
             write_output(f"{self.number} excluded from search (exclusions.json match)", doc, BLUE)
-            return
+            return [-1]
+
+        issues = []
 
         if self.correct_format == 0:
             write_output(f"{self.number} does not match expected {self.format} format", doc, BLUE)
+            issues.append(-2)
 
 
         validation = Validate(self)
@@ -282,9 +285,10 @@ class Citation:
 
         if validation.score_title == 1.0 and validation.score_authors == 1.0:
             write_output(f"{self.number} found exact title/author match", doc, GREEN)
-            return
+            return [0]
 
         write_output(f"{self.number} {self.entry}", doc, ORANGE)
+
 
         if validation.wrong_doi:
             if self.doi:
@@ -293,6 +297,9 @@ class Citation:
                 write_output(f"Title NOT found using ARXIV ID {self.arxiv_id}", doc, RED)
                 if validation.arxiv_version_count:
                     write_output(f"ArXIV Version Count is {validation.arxiv_version_count}, Manually compare against older versions!", doc, BLUE)
+            issues.append(3)
+        elif self.doi:
+            issues.append(-3)
             
             
         if validation.score_title != 1.0:
@@ -308,6 +315,7 @@ class Citation:
                 title2 = normalize_title(validation.doi_title).split(" ") if validation.doi_title else []
                 _, colored_2 = self.color(title1, title2, ORANGE, RED)
                 write_multi_output("DOI TITLE: ", DIM, colored_2, doc)
+            issues.append(1)
 
 
 
@@ -322,9 +330,12 @@ class Citation:
             if validation.wrong_doi and validation.doi_authors != validation.authors:
                 _, a2 = self.color(list0, list2, RED, ORANGE)
                 write_multi_output("DOI AUTHORS: ", DIM, a2, doc);
+            issues.append(2)
         else:
             write_output("Authors match!", doc, BLUE)
 
         write_output(" ", doc)
         write_output(" ", doc)
+
+        return issues
 

@@ -9,29 +9,21 @@ class Bibliography:
     def __init__(self):
         self.entries = []
 
-    def parse(self, args):
-        pdf_path = Path(args.pdf_path).expanduser().resolve()
+    def parse(self, path, args):
+        pdf_filename = path.name # e.g.filename.pdf
+        pdf_stem = path.stem     # e.g. filename
+        parent_dir = path.parent
 
-        pdf_filename = pdf_path.name # e.g.filename.pdf
-        pdf_stem = pdf_path.stem     # e.g. filename
-        parent_dir = pdf_path.parent
-
-        bibcheck_dir = parent_dir / "bibcheck"
-        bibcheck_dir.mkdir(exist_ok=True)
-        self.doc_path = bibcheck_dir / f"{pdf_stem}.docx"
+        self.doc_path = parent_dir / "bibcheck" / f"{pdf_stem}.docx"
+        print("Writing output to ", self.doc_path)
 
         #Convert PDF to text
-        if args.siam:
-            import fitz
-            doc = fitz.open(pdf_path)
-            text = ""
-            for page in doc:
-                text += page.get_text()
-            text = re.sub(r'^\s*\d+\s*$\n?', '', text, flags=re.MULTILINE)
-        else:
-            reader = PdfReader(pdf_path)
-            text = "\n".join(page.extract_text() or "" for page in reader.pages)
-            
+        import fitz
+        doc = fitz.open(path)
+        text = ""
+        for page in doc:
+            text += page.get_text()
+        text = re.sub(r'^\s*\d+\s*$\n?', '', text, flags=re.MULTILINE)
         text = re.sub(r'\s+\.', '.', text)
 
         # Find the last instance of 'bibliography' or 'references'
@@ -114,10 +106,33 @@ class Bibliography:
         if args.write_out:
             doc = Document()
         
+        incorrect_author_n= 0
+        incorrect_title_n = 0
+        incorrect_doi_n = 0
+        correct_doi_n = 0
+        num_excluded = 0
+        matches = 0
+        wrong_format = 0
         for entry in self.entries:
-            entry.validate(doc)
-        #self.entries[16].validate(doc)
+            correctness = entry.validate(doc)
+            for key in correctness:
+                if key == -1:
+                    num_excluded += 1
+                elif key == -2:
+                    wrong_format += 1
+                elif key == -3:
+                    correct_doi_n += 1
+                elif key == 0:
+                    matches += 1
+                elif key == 1:
+                    incorrect_title_n += 1
+                elif key == 2:
+                    incorrect_author_n += 1
+                elif key == 3:
+                    incorrect_doi_n += 1
 
         if doc:
             print("Saving to ", self.doc_path)
             doc.save(self.doc_path)
+
+        return [matches, num_excluded, wrong_format, incorrect_title_n, incorrect_author_n, correct_doi_n, incorrect_doi_n]

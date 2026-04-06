@@ -14,7 +14,8 @@ def parse_crossref(citation, validation, results):
             items = [message]
 
         for item in items:
-            title = item.get("title", [""])[0]
+            title_list = item.get("title") or []
+            title = title_list[0] if title_list else ""
             authors = item.get("author")
             authors = [a.get("family", "").lower() for a in item.get("author", [])]
             validation.compare(citation, title, authors)
