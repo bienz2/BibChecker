@@ -15,7 +15,8 @@ class Bibliography:
         parent_dir = path.parent
 
         self.doc_path = parent_dir / "bibcheck" / f"{pdf_stem}.docx"
-        print("Writing output to ", self.doc_path)
+        if args.write_out: 
+            print("Writing output to ", self.doc_path)
 
         #Convert PDF to text
         import fitz
