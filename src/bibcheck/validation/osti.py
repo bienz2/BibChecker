@@ -1,10 +1,24 @@
 __all__ = ["parse_osti", "search_osti"]
 
+import requests
+
+def safe_json(results):
+    """Return parsed JSON, or None if the request failed or the body isn't JSON."""
+    if results is None or not results.ok:
+        return None
+    try:
+        return results.json()
+    except requests.exceptions.JSONDecodeError:
+        return None
+
 def parse_osti(citation, validation, results):
     if results is None:
         return
 
-    for rec in results.json():
+    data = safe_json(results)
+    if not isinstance(data, list):
+        return
+    for rec in data:
         title = (rec.get("title") or "").strip()
         authors = []
 

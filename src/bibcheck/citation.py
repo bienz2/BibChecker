@@ -28,6 +28,8 @@ class Citation:
         elif args.springer:
             self.format = 'springer'
             self.last_first = True
+        elif args.ams:
+            self.format = 'ams'
 
         entry = remove_special_chars(entry)
         if args.siam:
@@ -132,6 +134,11 @@ class Citation:
             pattern_2 = patterns.springer_pattern_2
             pattern_1 = patterns.springer_pattern_1
             pattern_et_al = patterns.springer_pattern_et_al
+        elif args.ams:
+            pattern_3 = patterns.ams_pattern_3
+            pattern_2 = patterns.ams_pattern_2
+            pattern_1 = patterns.ams_pattern_1
+            pattern_et_al = patterns.ams_pattern_et_al
         else:
             pattern_3 = patterns.ieee_pattern_3 
             pattern_2 = patterns.ieee_pattern_2
@@ -164,8 +171,40 @@ class Citation:
             except TimeoutError:
                 m = None
 
+        if args.ams:
+            pattern_3 = patterns.plain_pattern_3
+            pattern_2 = patterns.plain_pattern_2
+            pattern_1 = patterns.plain_pattern_1
+            pattern_et_al = patterns.plain_pattern_et_al
+            if "et al" in entry:
+                try: 
+                    m = regex.search(pattern_et_al, entry, flags = re.DOTALL | re.VERBOSE, timeout = 0.1)
+                except TimeoutError:
+                    m = None
+
+            if not m and (args.springer or ", and " in entry): # 3+ authors
+                try:
+                    m = regex.search(pattern_3, entry, flags = re.DOTALL | re.VERBOSE, timeout = 0.1)
+
+                except TimeoutError:
+                    m = None
+            
+            if not m and (args.springer or " and " in entry): # 2 authors
+                try:
+                    m = regex.search(pattern_2, entry, flags = re.DOTALL | re.VERBOSE, timeout = 0.1)
+
+                except TimeoutError:
+                    m = None
+
+            if not m:
+                try:
+                    m = regex.search(pattern_1, entry, flags = re.DOTALL | re.VERBOSE, timeout = 0.1)
+                except TimeoutError:
+                    m = None
+
         if not m:
             self.correct_format = 0
+
 
         # If title/authors/etc not found, try other patterns
         if not m:

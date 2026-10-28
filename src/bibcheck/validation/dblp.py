@@ -1,12 +1,18 @@
 __all__ = ["parse_dblp", "search_dblp"]
 
 import re
+import requests
 
 def parse_dblp(citation, validation, results):
-    if results is None:
+    if results is None or not results.ok:
         return
 
-    data = results.json().get("result", {}).get("hits", {}).get("hit", [])
+    data = ""
+    try:
+        data = results.json().get("result", {}).get("hits", {}).get("hit", [])
+    except requests.exceptions.JSONDecodeError:
+        return
+
     if isinstance(data, dict):
         data = [data]
     for item in data:

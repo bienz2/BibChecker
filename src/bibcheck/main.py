@@ -21,6 +21,7 @@ def run(argv=None):
     style_group.add_argument("-acm", action="store_true", help="Parse ACM style references")
     style_group.add_argument("-siam", action="store_true", help="Parse SIAM style references")
     style_group.add_argument("-springer", action="store_true", help="Parse Springer style references")
+    style_group.add_argument("-ams", action="store_true", help="Parse ams latex style references")
 
 
     parser.add_argument(

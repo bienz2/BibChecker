@@ -160,6 +160,146 @@ class patterns:
     ieee_pattern_1 = ieee_pattern
 
 
+    # Shared tail: comma after authors, title, venue, year.
+    _ams_tail = r'''
+        ,\s*                                    # comma after authors
+        (?P<title>
+            (?:[^.]|\.(?!\s))+?                 # no ". " inside the title
+        )
+        ,\s+                                    # comma after title, then venue starts:
+        (?=[A-Z0-9]|in\s|preprint|arXiv|available|to\s+appear|submitted|Ph\.\s*D)
+        .*?                                     # venue, volume, publisher ...
+        (?:
+            \(\s*(?:[^()]*?[,\s])?              # "(1976)"  "(Berlin, 1986)"  "(Oct. 2019)"
+          | ,\s+(?:[A-Z][a-z]+\.?\s+)?          # ", 1999."  ", July 2020."  (books, misc)
+        )
+        (?P<year>(?:19|20)\d{2})
+        (?=\)|[.,;]?(?:\s|$))                   # year not followed by "–pages" etc.
+        .*$
+        '''
+
+    # One author: starts with a capital; no commas or digits; periods only
+    # after an initial (B.  Th.  J.-P.).
+    _one = r'(?=[A-Z])(?:\b[A-Z][a-z]?\.|[^.\d,])+?'
+
+    ams_pattern_3 = r'''
+        ^(?P<authors>
+            ''' + _one + r'''
+            (?:,\s*''' + _one + r''')*?         # more authors
+            ,\s*and\s+                          # must find `, and` before last author
+            ''' + _one + r'''
+        )
+        ''' + _ams_tail
+
+    ams_pattern_et_al = r'''
+        ^(?P<authors>
+            (?=[A-Z])(?:\b[A-Z][a-z]?\.|[^.\d])*?   # one or more authors, commas allowed
+            \bet\s+al\.                             # literal "et al."
+        )
+        ''' + _ams_tail
+
+    ams_pattern_2 = r'''
+        ^(?P<authors>
+            ''' + _one + r'''
+            \s+and\s+                           # " and " before the first comma
+            ''' + _one + r'''
+        )
+        ''' + _ams_tail
+
+    ams_pattern_1 = r'''
+        ^(?!                                    # not a plain/ACM list "A, B, and C." ending in a period
+            ''' + _one + r'''(?:,\s*''' + _one + r''')*,?\s*(?:and\s+''' + _one + r''')?(?<!\b[A-Z])(?<!\b[A-Z][a-z])\.\s
+        )
+        (?P<authors>
+            ''' + _one + r'''
+          | [—–\-_]{2,}                         # \bysame dash for a repeated author
+        )
+        ''' + _ams_tail   
+
+
+
+    
+    plain_pattern_3 = r'''
+        ^(?P<authors>
+            (?:\b[A-Z]\.|[^.\d])*?          # No periods unless they follow 1 capital letter (initial)
+            ,\s*and\s+                      # Must find `, and` before last author
+            (?:\b[A-Z]\.|[^.\d,])+?         # last author: no commas
+        )
+        (?<![^A-Za-z][A-Z])                 # authors don't end on an initial ("H." is not the end)
+        \.\s+                               # period after authors
+        (?P<title>
+            (?!(?:19|20)\d{2}\.)            # title is not a bare year (rejects ACM)
+            (?:[^.?!]|[.?!](?!\s))+?        # no ". " inside the title
+        )
+        (?:
+            [.?!]\s+ .*? [,\s]\s*           # end of title, then venue/volume/pages...
+          | ,\s* (?:[A-Z][a-z]+\.?\s+)?     # ...or @misc: "Title, 2021." / "Title, May 2021."
+        )
+        (?P<year>(?:19|20)\d{2})
+        \.(?:\s|$)                          # period after year
+        .*$
+        '''
+
+    plain_pattern_et_al = r'''
+        ^(?P<authors>
+            (?:\b[A-Z]\.|[^.\d])*?          # same looseness as other patterns
+            \bet\s+al\.                     # literal "et al."
+        )
+        \s+
+        (?P<title>
+            (?!(?:19|20)\d{2}\.)
+            (?:[^.?!]|[.?!](?!\s))+?
+        )
+        (?:
+            [.?!]\s+ .*? [,\s]\s*
+          | ,\s* (?:[A-Z][a-z]+\.?\s+)?
+        )
+        (?P<year>(?:19|20)\d{2})
+        \.(?:\s|$)
+        .*$
+        '''
+
+    plain_pattern_2 = r'''
+        ^(?P<authors>
+            (?:\b[A-Z]\.|[^.\d,])+?         # first author: no commas
+            \s+and\s+                       # " and " before first real period
+            (?:\b[A-Z]\.|[^.\d,])+?         # second author: no commas
+        )
+        (?<![^A-Za-z][A-Z])
+        \.\s+                               # period after authors
+        (?P<title>
+            (?!(?:19|20)\d{2}\.)
+            (?:[^.?!]|[.?!](?!\s))+?
+        )
+        (?:
+            [.?!]\s+ .*? [,\s]\s*
+          | ,\s* (?:[A-Z][a-z]+\.?\s+)?
+        )
+        (?P<year>(?:19|20)\d{2})
+        \.(?:\s|$)
+        .*$
+        '''
+
+    plain_pattern_1 = r'''
+        ^(?P<authors>
+            (?:\b[A-Z]\.|[^.\d,])+?         # single author: no commas
+        )
+        (?<![^A-Za-z][A-Z])
+        \.\s+                               # period after authors
+        (?P<title>
+            (?!(?:19|20)\d{2}\.)
+            (?:[^.?!]|[.?!](?!\s))+?
+        )
+        (?:
+            [.?!]\s+ .*? [,\s]\s*
+          | ,\s* (?:[A-Z][a-z]+\.?\s+)?
+        )
+        (?P<year>(?:19|20)\d{2})
+        \.(?:\s|$)
+        .*$
+        '''
+
+
     gen_pattern_3 = r'''
         ^(?P<authors>
             .*?,\s*and\s+.*?[A-Za-z]{2,}\.

@@ -63,5 +63,6 @@
   "apple.com": "Apple",
   "hackernoon.com": "Hackernoon",
   "llvm.org": "LLVM",
-  "software.intel.com": "Intel Software"
+  "software.intel.com": "Intel Software",
+  "preprint": "Preprint" 
 }
