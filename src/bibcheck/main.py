@@ -46,11 +46,11 @@ def run(argv=None):
         folder = pdf_path
         args.write_out = True
     else:
-        print("Invalid path: ", path)
+        print("Invalid path: ", pdf_path)
         return
 
     if not pdf_files:
-        print("No PDF files in path: ", path)
+        print("No PDF files in path: ", pdf_path)
         return
 
     if args.write_out:
